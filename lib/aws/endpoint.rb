@@ -8,6 +8,19 @@ module AWS
     # Available AWS locales.
     LOCALES = %w(CA CN DE ES FR IT JP UK US)
 
+    # Returns the String AWS locale.
+    attr :locale
+
+    # Creates a new locale.
+    #
+    # locale - A String locale.
+    #
+    # Raises a Bad Locale error if locale is not valid.
+    def initialize(locale)
+      LOCALES.include?(locale) or raise BadLocale
+      @locale = locale
+    end
+
     # Returns the String AWS access key Id.
     #
     # Raises a Missing Key error if key is missing.
@@ -20,18 +33,6 @@ module AWS
     # Returns nothing.
     attr_writer :key
 
-    # Returns the String AWS locale.
-    #
-    # Raises a Bad Locale error if locale is not valid.
-    def locale
-      LOCALES.include? @locale or raise BadLocale
-      @locale
-    end
-
-    # Sets the String AWS locale.
-    #
-    # Returns nothing.
-    attr_writer :locale
 
     # Returns the String AWS access secret key.
     #
