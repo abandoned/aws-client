@@ -29,7 +29,7 @@ module AWS
     # Yields the AWS Endpoint.
     #
     # Returns nothing.
-    def configure(&block)
+    def configure(&blk)
       @connection = nil
       yield endpoint
     end
