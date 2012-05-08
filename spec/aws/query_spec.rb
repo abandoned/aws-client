@@ -4,7 +4,7 @@ module AWS
   describe Query do
     describe '.build' do
       it 'sorts query values' do
-        query = described_class.build :q => 1, :p => 2
+        query = described_class.build 'q' => 1, 'p' => 2
         query.should eql 'p=2&q=1'
       end
     end
