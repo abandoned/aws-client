@@ -6,10 +6,6 @@ require 'openssl'
 module AWS
   # Internal: A HMAC signature builder.
   class Signature
-    extend Forwardable
-
-    def_delegator :Base64, :encode64
-
     # Returns the SHA256 hash algorithm.
     SHA256 = OpenSSL::Digest::SHA256.new
 
@@ -24,7 +20,7 @@ module AWS
     #
     # String signature.
     def build(message)
-      encode64(digest message).chomp
+      Base64.encode64(digest message).chomp
     end
 
     # Internal: Returns a String message digest.

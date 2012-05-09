@@ -2,28 +2,20 @@ require 'spec_helper'
 
 module AWS
   describe Signature do
-    subject { described_class.new 'secret' }
-
     describe '#build' do
       it 'encodes a digest' do
-        subject.should_receive(:digest).and_return 'foo'
-        subject.should_receive(:encode64).with('foo').and_return 'bar'
-        subject.build 'message'
+        sig = described_class.new 'secret'
+        sig.should_receive(:digest).and_return 'foo'
+        Base64.should_receive(:encode64).with('foo').and_return 'bar'
+        sig.build 'message'
       end
     end
 
     describe '#digest' do
-      after { subject.digest 'message' }
-
       it 'generates an HMAC' do
+        sig = described_class.new 'secret'
         OpenSSL::HMAC.should_receive :digest
-      end
-    end
-
-    describe '#encode' do
-      it 'base64-encodes' do
-        Base64.should_receive :encode64
-        subject.encode64 'message'
+        sig.digest 'message'
       end
     end
   end
