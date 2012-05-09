@@ -14,15 +14,13 @@ module AWS
   class Request
     extend Forwardable
 
-    # Delegate clear and update to a Hash that stores the parameters for the
-    # current request.
-    def_delegators :@params, :clear, :update
+    def_delegators :@query, :clear, :update
 
     # Creates a new request for given locale and credentials.
     #
     # Yields the AWS Endpoint if a block is given.
     def initialize(&blk)
-      @params = {}
+      @query = Query.new default
       configure &blk if block_given?
     end
 
@@ -42,15 +40,6 @@ module AWS
       @connection ||= Connection.build endpoint.secret, &blk
     end
 
-    # Internal: Returns a Hash of parameters that should be available in all
-    # AWS requests.
-    def default_params
-      {
-        'AWSAccessKeyId' => endpoint.key,
-        'Timestamp'      => Time.now.utc.iso8601
-      }
-    end
-
     # Raises a Not Implemented Error.
     #
     # When implemented, this should return the AWS Endpoint.
@@ -67,6 +56,14 @@ module AWS
       end
     end
 
+    def host
+      raise NotImplementedError
+    end
+
+    def path
+      raise NotImplementedError
+    end
+
     # Posts data to an AWS resource.
     #
     # Raises a Not Implemented Error.
@@ -74,9 +71,12 @@ module AWS
       raise NotImplementedError
     end
 
-    # Returns the Hash parameters of the AWS request.
-    def params
-      default_params.merge @params
+    def query
+      @query.string
+    end
+
+    def scheme
+      raise NotImplementedError
     end
 
     # Returns a URI that identifies the requested AWS resource.
@@ -89,20 +89,11 @@ module AWS
 
     private
 
-    def host
-      raise NotImplementedError
-    end
-
-    def path
-      raise NotImplementedError
-    end
-
-    def query
-      Query.build params
-    end
-
-    def scheme
-      raise NotImplementedError
+    def default
+      {
+        'AWSAccessKeyId' => endpoint.key,
+        'Timestamp'      => Time.now.utc.iso8601
+      }
     end
   end
 end

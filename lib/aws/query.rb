@@ -1,26 +1,33 @@
 module AWS
-  module Query
-    # Internal: Builds a query string out of query values.
-    #
-    # query_values - A Hash of query values.
-    #
-    # Returns a query String.
-    def self.build(query_values)
-      query_values.
-        sort.
-        map { |k, v| "#{k}=#{ percent_encode v }" }.
-        join '&'
-    end
+  # Internal: Builds a query string.
+  class Query
+    extend Forwardable
 
-    # Internal: Percent-encodes a query component.
+    def_delegators :@values, :clear, :update
+
+    # Percent-encodes a query component.
     #
-    # component - A query component that responds to to_s.
+    # val - A query component that responds to to_s.
     #
-    # Returns the String encoded component.
-    def self.percent_encode(component)
-      component.to_s.gsub(/([^\w.~-]+)/) do
+    # Returns a String query component.
+    def self.encode(val)
+      val.to_s.gsub(/([^\w.~-]+)/) do
         '%' + $1.unpack('H2' * $1.bytesize).join('%').upcase
       end
+    end
+
+    def initialize(default = {})
+      @default, @values = default, {}
+    end
+
+    # Returns the String query string.
+    def string
+      values.sort.map { |k, v| "#{k}=#{ Query.encode v }" }.join '&'
+    end
+
+    # Returns the Hash query values.
+    def values
+      @default.merge @values
     end
   end
 end

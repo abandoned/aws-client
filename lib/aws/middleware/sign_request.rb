@@ -29,7 +29,7 @@ module AWS
       #
       # Returns an Object that responds to call and returns a Faraday Response.
       def call(env)
-        signature = Query.percent_encode sign string_to_sign env
+        signature = Query.encode sign string_to_sign env
         separator = env[:url].to_s.match(/\?.+/) ? '&' : ''
         env[:url].query = "#{env[:url].query}#{separator}Signature=#{signature}"
 
