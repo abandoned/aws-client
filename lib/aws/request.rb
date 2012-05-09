@@ -19,8 +19,8 @@ module AWS
     # Creates a new request for given locale and credentials.
     #
     # Yields the AWS Endpoint if a block is given.
-    def initialize(&blk)
-      @query = Query.new default
+    def initialize(locale, &blk)
+      @locale = locale
       configure &blk if block_given?
     end
 
@@ -40,18 +40,23 @@ module AWS
       @connection ||= Connection.build endpoint.secret, &blk
     end
 
-    # Raises a Not Implemented Error.
-    #
-    # When implemented, this should return the AWS Endpoint.
+    def default
+      {
+        'AWSAccessKeyId' => endpoint.key,
+        'Timestamp'      => Time.now.utc.iso8601
+      }
+    end
+
+    # Returns an AWS Endpoint.
     def endpoint
-      raise NotImplementedError
+      @endpoint ||= subclass(:Endpoint).new @locale
     end
 
     # Gets an AWS resource.
     #
     # Returns an AWS Response.
     def get
-      Response.new connection.get do |req|
+      subclass(:Response).new connection.get do |req|
         req.url uri
       end
     end
@@ -72,7 +77,7 @@ module AWS
     end
 
     def query
-      @query.string
+      (@query ||= Query.new default).string
     end
 
     def scheme
@@ -89,11 +94,16 @@ module AWS
 
     private
 
-    def default
-      {
-        'AWSAccessKeyId' => endpoint.key,
-        'Timestamp'      => Time.now.utc.iso8601
-      }
+    def nesting_module
+      Object.const_get self.class.name.gsub /::[^:]+/, ''
+    end
+
+    def subclass(name)
+      if nesting_module.const_defined? name
+        nesting_module.const_get name
+      else
+        AWS.const_get name
+      end
     end
   end
 end

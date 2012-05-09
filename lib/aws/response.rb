@@ -8,7 +8,7 @@ require 'nokogiri'
 require 'aws/xml_utils'
 
 module AWS
-  # A wrapper around the Amazon Web Services (AWS) response.
+  # A wrapper around an Amazon Web Services (AWS) response.
   class Response
     extend Forwardable
 
@@ -61,4 +61,3 @@ module AWS
     end
   end
 end
-
